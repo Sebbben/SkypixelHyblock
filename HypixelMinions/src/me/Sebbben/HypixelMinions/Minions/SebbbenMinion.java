@@ -1,6 +1,7 @@
 package me.Sebbben.HypixelMinions.Minions;
 
 import me.Sebbben.HypixelMinions.Items.MinionHeads;
+import me.Sebbben.HypixelMinions.Main;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,8 +9,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class SebbbenMinion extends Minion {
 
-    public SebbbenMinion(Location l) {
-        super(l);
+
+    public SebbbenMinion(Main plugin1, Location l) {
+        super(plugin1, l);
     }
 
     @Override
@@ -30,6 +32,11 @@ public class SebbbenMinion extends Minion {
     @Override
     public Material getBlockType() {
         return Material.DIAMOND_BLOCK;
+    }
+
+    @Override
+    public Long getMiningPeriod() {
+        return 5L;
     }
 
     @Override

@@ -10,7 +10,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         this.getCommand("getMinion").setExecutor(new GetMinion());
-        this.getServer().getPluginManager().registerEvents(new MinionManager(), this);
+        this.getServer().getPluginManager().registerEvents(new MinionManager(this), this);
         this.getServer().getPluginManager().registerEvents(new ArmorStandInteract(), this);
 
         Recipies.makeRecipies(this);

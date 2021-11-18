@@ -9,7 +9,6 @@ public class ArmorStandInteract implements Listener {
 
     @EventHandler
     public static void onArmorStandClick(PlayerArmorStandManipulateEvent e) {
-        e.getPlayer().sendMessage("You clicked an armorstand");
         if (e.getRightClicked().getCustomName().equals("SebbbenMinion")) {
             Inventory inv = MinionManager.getPlacedMinions().get(e.getRightClicked().getLocation()).getInventory();
             e.getPlayer().openInventory(inv);
