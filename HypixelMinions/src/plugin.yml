@@ -1,0 +1,10 @@
+name: HypixelMinions
+version: 1.0
+api-version: 1.16
+main: me.Sebbben.HypixelMinions.Main
+commands:
+  getMinion:
+    description: Get a minion
+    usage: /<command>
+    aliases:
+      - gm
