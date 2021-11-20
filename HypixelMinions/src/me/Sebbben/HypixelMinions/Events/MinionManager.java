@@ -11,15 +11,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 
 public class MinionManager implements Listener {
 
-    private static HashMap<Location, Minion> placedMinions = new HashMap<>();
+    private static HashMap<UUID, Minion> placedMinions = new HashMap<>();
     private static Main plugin;
 
     public MinionManager(Main p) {
@@ -27,14 +30,14 @@ public class MinionManager implements Listener {
         MinionHeads.init();
     }
 
-    public static void removeMinion(Location l) {
-        placedMinions.get(l).removeMinion();
-        l.getWorld().dropItem(l,placedMinions.get(l).getMinionHead());
-        placedMinions.remove(l);
+    public static void removeMinion(UUID uuid) {
+        plugin.getServer().getEntity(uuid).getWorld().dropItem(placedMinions.get(uuid).getLocation(),placedMinions.get(uuid).getMinionHead());
+        placedMinions.get(uuid).removeMinion();
+        placedMinions.remove(uuid);
     }
 
-    public static HashMap<Location, Minion> getPlacedMinions() {
-        return placedMinions;
+    public static Minion getPlacedMinion(UUID uuid) {
+        return placedMinions.get(uuid);
     }
 
     @EventHandler
@@ -52,7 +55,9 @@ public class MinionManager implements Listener {
             Location targetLocation = e.getBlock().getLocation().add(0.5,0,0.5);
             targetLocation.setDirection(e.getPlayer().getLocation().getDirection().multiply(-1));
 
-            placedMinions.put(targetLocation, new SebbbenMinion(plugin, targetLocation));
+            SebbbenMinion minion = new SebbbenMinion(plugin, targetLocation);
+
+            placedMinions.put(minion.getUUID(), minion);
         }
     }
 
@@ -62,11 +67,20 @@ public class MinionManager implements Listener {
             e.setCancelled(true);
             if (e.getCurrentItem().getType() == Material.BEDROCK) {
                 e.getWhoClicked().closeInventory();
-                removeMinion(((Minion) e.getInventory().getHolder()).getLocation());
+                removeMinion(((Minion) e.getInventory().getHolder()).getUUID());
             }
 
         }
 
+    }
+
+    @EventHandler
+    public static void onArmorStandClick(PlayerArmorStandManipulateEvent e) {
+        if (e.getRightClicked().getCustomName().equals("Sebbben Minion")) {
+            Inventory inv = placedMinions.get(e.getRightClicked().getUniqueId()).getInventory();
+            e.getPlayer().openInventory(inv);
+            e.setCancelled(true);
+        }
     }
 
 }

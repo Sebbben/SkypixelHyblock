@@ -16,7 +16,7 @@ public class SebbbenMinion extends Minion {
 
     @Override
     public String getMinionName() {
-        return "SebbbenMinion";
+        return "Sebbben Minion";
     }
 
     @Override
@@ -36,7 +36,7 @@ public class SebbbenMinion extends Minion {
 
     @Override
     public Long getMiningPeriod() {
-        return 5L;
+        return 1L;
     }
 
     @Override

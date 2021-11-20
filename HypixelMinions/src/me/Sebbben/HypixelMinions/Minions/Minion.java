@@ -13,6 +13,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 public abstract class Minion implements InventoryHolder {
     private ItemStack head;
@@ -30,11 +32,11 @@ public abstract class Minion implements InventoryHolder {
     protected List<ItemStack> info;
     protected List<ItemStack> upgrades;
     protected List<ItemStack> inventory;
-    private Main plugin;
+    private final Main plugin;
 
 
     public Minion(Main plugin1, Location l) {
-        this.plugin = plugin1;
+        plugin = plugin1;
         minionBlockType = getBlockType();
         clothingColor = getClothingColor();
         toolType = getToolType();
@@ -63,24 +65,77 @@ public abstract class Minion implements InventoryHolder {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Location l;
-                outerLoop:
-                for (int i=-2; i<=2; i++) {
-                    for (int j=-2;j<=2;j++) {
-                        l = location.clone().add(i,-1,j);
-                        l.getBlock();
-                        if (l.getBlock().getType().equals(Material.AIR)) {
-                            l.getBlock().setType(getBlockType());
-                            break outerLoop;
-                        }
-                    }
+                if (plugin.getServer().getEntity(armorStand.getUniqueId()) == null) {
+                    this.cancel();
+                    return;
+                }
+                boolean placedBlock = placeBlock();
+                if (!placedBlock) {
+                    mineBlock();
                 }
             }
         }.runTaskTimer(plugin, 0L, 20*miningPeriod);
+
+    }
+
+    private boolean placeBlock() {
+        Location l;
+        for (int i=-2; i<=2; i++) {
+            for (int j=-2;j<=2;j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                l = location.clone().add(i,-1,j);
+                l.getBlock();
+                if (l.getBlock().getType().equals(Material.AIR)) {
+                    l.getBlock().setType(minionBlockType);
+                    armorStand.setRotation(135,0);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private boolean mineBlock() {
+        Location l;
+        Random random = new Random();
+        int i,j;
+
+        do {
+            i = random.nextInt(5)-2;
+            j = random.nextInt(5)-2;
+            l = location.clone().add(i,-1,j);
+        } while (l.getBlock().getType() != minionBlockType);
+
+        boolean addedBlockToInv = false;
+
+        for (ItemStack item : inventory) {
+            if (item.getType().equals(minionBlockType)) {
+                if (item.getAmount() < 64) {
+                    item.setAmount(item.getAmount()+1);
+                    addedBlockToInv = true;
+                    break;
+                }
+            }
+        }
+
+        if (!addedBlockToInv && inventory.size() < 15) {
+            inventory.add(new ItemStack(minionBlockType, 1));
+        }
+
+        if (inventory.size() == 15 && inventory.get(14).getAmount() == 64) {
+            return false;
+        }
+        l.getBlock().setType(Material.AIR);
+        return true;
     }
 
     public void removeMinion() {
         armorStand.remove();
+    }
+
+    public UUID getUUID() {
+        return armorStand.getUniqueId();
     }
 
     protected void createOutFit() {
@@ -138,7 +193,7 @@ public abstract class Minion implements InventoryHolder {
     }
 
     private void makeInv() {
-        inventory.add(null);
+        inventory.add(new ItemStack(minionBlockType, 60));
     }
     private void makeUpgrades() {
         ItemStack filler = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
@@ -185,23 +240,13 @@ public abstract class Minion implements InventoryHolder {
         inv.setItem(46, upgrades.get(4));
 
 
-        int i = 21;
-        for (ItemStack item : inventory) {
-            inv.setItem(i++,item);
-            if ((i+1)%9==0) {
-                i += 4;
-            }
-        }
 
-        ItemStack wFiller = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
-        ItemMeta wFillerMeta = wFiller.getItemMeta();
-        wFillerMeta.setDisplayName(" ");
-        wFiller.setItemMeta(wFillerMeta);
+        List<ItemStack> minionInv = createInvetory();
 
-        for (i = 21; i<=43; i++) {
-            if (inv.getContents()[i] != null && inv.getContents()[i].getType() == bFiller.getType()) {
-                inv.setItem(i,wFiller);
-            }
+        for (int i = 21; i<=43; i++) {
+
+            inv.setItem(i,minionInv.remove(0));
+
             if ((i+2)%9==0) {
                 i += 4;
             }
@@ -219,8 +264,6 @@ public abstract class Minion implements InventoryHolder {
         upgrade.setItemMeta(upgradeMeta);
         inv.setItem(50, upgrade);
 
-
-
         ItemStack pickMeUp = new ItemStack(Material.BEDROCK);
         ItemMeta pickMeUpMeta = pickMeUp.getItemMeta();
         pickMeUpMeta.setDisplayName(ChatColor.WHITE+"Pick Me Up");
@@ -230,6 +273,20 @@ public abstract class Minion implements InventoryHolder {
         return inv;
     }
 
+    private List<ItemStack> createInvetory() {
+        List<ItemStack> inv = new ArrayList<>();
+        inv.addAll(inventory);
+
+        ItemStack filler = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
+        ItemMeta fillerMeta = filler.getItemMeta();
+        fillerMeta.setDisplayName(" ");
+        filler.setItemMeta(fillerMeta);
+
+        while (inv.size() <= 15) {
+            inv.add(filler);
+        }
+        return inv;
+    }
 
 
 }
