@@ -4,9 +4,11 @@ import me.Sebbben.HypixelMinions.Items.MinionHeads;
 import me.Sebbben.HypixelMinions.Main;
 import me.Sebbben.HypixelMinions.Minions.Minion;
 import me.Sebbben.HypixelMinions.Minions.SebbbenMinion;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -17,7 +19,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.logging.Level;
 
 
 public class MinionManager implements Listener {
@@ -28,11 +32,10 @@ public class MinionManager implements Listener {
     public MinionManager(Main p) {
         plugin = p;
         MinionHeads.init();
+        Minion.init();
     }
 
     public static void removeMinion(UUID uuid) {
-        plugin.getServer().getEntity(uuid).getWorld().dropItem(placedMinions.get(uuid).getLocation(),placedMinions.get(uuid).getMinionHead());
-        placedMinions.get(uuid).removeMinion();
         placedMinions.remove(uuid);
     }
 
@@ -42,10 +45,7 @@ public class MinionManager implements Listener {
 
     @EventHandler
     public static void onMinionPlace(BlockPlaceEvent e) {
-        ItemMeta eventMeta = e.getItemInHand().getItemMeta();
-        ItemMeta minionMeta = MinionHeads.getMinionHead("Sebbben").getItemMeta();
-        if (eventMeta.getDisplayName().equals(minionMeta.getDisplayName()) && // check item displayname
-                eventMeta.getLore().toString().equals(minionMeta.getLore().toString())) { // Check item lore
+        if (Objects.equals(e.getItemInHand(), MinionHeads.getMinionHead("Sebbben"))) {
 
             e.setCancelled(true);
 
@@ -59,24 +59,21 @@ public class MinionManager implements Listener {
 
             placedMinions.put(minion.getUUID(), minion);
         }
+
     }
 
     @EventHandler
     public static void onInventoryClick(InventoryClickEvent e) {
         if (e.getInventory().getHolder() instanceof Minion) {
             e.setCancelled(true);
-            if (e.getCurrentItem().getType() == Material.BEDROCK) {
-                e.getWhoClicked().closeInventory();
-                removeMinion(((Minion) e.getInventory().getHolder()).getUUID());
-            }
-
+            ((Minion) e.getInventory().getHolder()).handleInventoryClick(e);
         }
 
     }
 
     @EventHandler
     public static void onArmorStandClick(PlayerArmorStandManipulateEvent e) {
-        if (e.getRightClicked().getCustomName().equals("Sebbben Minion")) {
+        if (placedMinions.containsKey(e.getRightClicked().getUniqueId())) {
             Inventory inv = placedMinions.get(e.getRightClicked().getUniqueId()).getInventory();
             e.getPlayer().openInventory(inv);
             e.setCancelled(true);
