@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public abstract class Minion implements InventoryHolder {
     private ItemStack head;
@@ -100,12 +101,14 @@ public abstract class Minion implements InventoryHolder {
         Location l;
         Random random = new Random();
         int i,j;
+        int attempts = 0;
 
         do {
             i = random.nextInt(5)-2;
             j = random.nextInt(5)-2;
             l = location.clone().add(i,-1,j);
-        } while (l.getBlock().getType() != minionBlockType);
+            attempts++;
+        } while (l.getBlock().getType() != minionBlockType && attempts < 25);
 
         boolean addedBlockToInv = false;
 
