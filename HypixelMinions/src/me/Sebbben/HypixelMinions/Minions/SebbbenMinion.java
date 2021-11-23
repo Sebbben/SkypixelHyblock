@@ -8,6 +8,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
+
 public class SebbbenMinion extends Minion {
 
 
@@ -50,13 +52,42 @@ public class SebbbenMinion extends Minion {
     }
 
     @Override
-    public Long getMiningPeriod() {
-        return 1L;
+    public HashMap<Integer, Long> getMiningPeriod() {
+        HashMap<Integer, Long> miningPeriod = new HashMap<>();
+        miningPeriod.put(0,15L);
+        miningPeriod.put(1,14L);
+        miningPeriod.put(2,13L);
+        miningPeriod.put(3,12L);
+        miningPeriod.put(4,11L);
+        miningPeriod.put(5,10L);
+        miningPeriod.put(6,9L);
+        miningPeriod.put(7,8L);
+        miningPeriod.put(8,7L);
+        miningPeriod.put(9,6L);
+        miningPeriod.put(10,1L);
+        return miningPeriod;
     }
 
     @Override
     public ItemStack getMinionHead() {
         return MinionHeads.getMinionHead("Sebbben");
+    }
+
+    @Override
+    public HashMap<Integer, Integer> getInventorySizes() {
+        HashMap<Integer, Integer> inventorySlots = new HashMap<>();
+        inventorySlots.put(0,1);
+        inventorySlots.put(1,3);
+        inventorySlots.put(2,3);
+        inventorySlots.put(3,6);
+        inventorySlots.put(4,6);
+        inventorySlots.put(5,9);
+        inventorySlots.put(6,9);
+        inventorySlots.put(7,12);
+        inventorySlots.put(8,12);
+        inventorySlots.put(9,15);
+        inventorySlots.put(10,15);
+        return inventorySlots;
     }
 
 
