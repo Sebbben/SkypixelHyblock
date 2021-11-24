@@ -12,9 +12,8 @@ import java.util.HashMap;
 
 public class SebbbenMinion extends Minion {
 
-
-    public SebbbenMinion(Main plugin1, Location l) {
-        super(plugin1, l);
+    public SebbbenMinion(int level, Main plugin1, Location l) {
+        super(level, plugin1, l);
     }
 
     @Override

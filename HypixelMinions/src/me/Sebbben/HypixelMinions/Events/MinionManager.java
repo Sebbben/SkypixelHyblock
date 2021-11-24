@@ -45,7 +45,7 @@ public class MinionManager implements Listener {
 
     @EventHandler
     public static void onMinionPlace(BlockPlaceEvent e) {
-        if (Objects.equals(e.getItemInHand(), MinionHeads.getMinionHead("Sebbben"))) {
+        if (e.getItemInHand().isSimilar(MinionHeads.getMinionHead("Sebbben"))) {
 
             e.setCancelled(true);
 
@@ -64,9 +64,8 @@ public class MinionManager implements Listener {
 
     @EventHandler
     public static void onInventoryClick(InventoryClickEvent e) {
-        if (e.getInventory().getHolder() instanceof Minion) {
-            e.setCancelled(true);
-            ((Minion) e.getInventory().getHolder()).handleInventoryClick(e);
+        if (e.getClickedInventory() != null && e.getClickedInventory().getHolder() instanceof Minion) {
+            ((Minion) e.getClickedInventory().getHolder()).handleInventoryClick(e);
         }
 
     }

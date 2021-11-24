@@ -1,6 +1,7 @@
 package me.Sebbben.HypixelMinions.Minions;
 
 import me.Sebbben.HypixelMinions.Main;
+import me.Sebbben.HypixelMinions.RomanNumeralGen;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
@@ -70,7 +71,7 @@ public abstract class Minion implements InventoryHolder {
     }
 
 
-    public Minion(Main plugin1, Location l) {
+    public Minion(int level, Main plugin1, Location l) {
         plugin = plugin1;
         minionBlockType = getBlockType();
         minionMaterialType = getMaterialType();
@@ -81,12 +82,14 @@ public abstract class Minion implements InventoryHolder {
         miningPeriod = getMiningPeriod();
         inventorySizes = getInventorySizes();
         location = l;
-        minionLevel = 0;
+        minionLevel = level;
         makeInventories();
         createOutFit();
         placeMinion();
         doMining();
     }
+
+
 
     public abstract String getMinionName();
     public abstract Material getToolType();
@@ -139,15 +142,14 @@ public abstract class Minion implements InventoryHolder {
     private void mineBlock() {
         Location l;
         Random random = new Random();
-        int i,j;
-        int attempts = 0;
 
-        do {
-            i = random.nextInt(5)-2;
-            j = random.nextInt(5)-2;
-            l = location.clone().add(i,-1,j);
-            attempts++;
-        } while (l.getBlock().getType() != minionBlockType && attempts < 25);
+        int i = random.nextInt(5)-2;
+        int j = random.nextInt(5)-2;
+        l = location.clone().add(i,-1,j);
+
+        if (!l.getBlock().getType().equals(minionBlockType)) {
+            return;
+        }
 
         boolean addedBlockToInv = false;
 
@@ -160,9 +162,6 @@ public abstract class Minion implements InventoryHolder {
                 }
             }
         }
-
-        plugin.getServer().getLogger().log(Level.SEVERE, String.valueOf(inventory.size()) + " " + inventorySizes.get(minionLevel));
-
         if (!addedBlockToInv && inventory.size() < inventorySizes.get(minionLevel)) {
             inventory.add(new ItemStack(minionMaterialType, 1));
         }
@@ -271,7 +270,7 @@ public abstract class Minion implements InventoryHolder {
 
     @Override
     public Inventory getInventory() {
-        Inventory inv = Bukkit.createInventory(this, 54,getMinionName());
+        Inventory inv = Bukkit.createInventory(this, 54,getMinionName() + " " + RomanNumeralGen.toRoman(minionLevel+1));
 
         fillInv(inv);
 
@@ -341,6 +340,13 @@ public abstract class Minion implements InventoryHolder {
 
     public void handleInventoryClick(InventoryClickEvent e) {
         Player player = (Player) e.getWhoClicked();
+
+        if (e.getCurrentItem() != null && e.getCurrentItem().getType().equals(minionMaterialType)) {
+            inventory.remove(e.getRawSlot()-21);
+            return;
+        }
+        e.setCancelled(true);
+
         if (Objects.equals(e.getCurrentItem(), pickMeUp)) {
             player.closeInventory();
             removeMinion();
