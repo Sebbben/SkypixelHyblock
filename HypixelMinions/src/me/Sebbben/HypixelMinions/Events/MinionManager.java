@@ -55,7 +55,7 @@ public class MinionManager implements Listener {
             Location targetLocation = e.getBlock().getLocation().add(0.5,0,0.5);
             targetLocation.setDirection(e.getPlayer().getLocation().getDirection().multiply(-1));
 
-            SebbbenMinion minion = new SebbbenMinion(plugin, targetLocation);
+            SebbbenMinion minion = new SebbbenMinion(10, plugin, targetLocation);
 
             placedMinions.put(minion.getUUID(), minion);
         }

@@ -2,13 +2,18 @@ package me.Sebbben.HypixelMinions.Minions;
 
 import me.Sebbben.HypixelMinions.Items.MinionHeads;
 import me.Sebbben.HypixelMinions.Main;
+import me.Sebbben.HypixelMinions.RomanNumeralGen;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class SebbbenMinion extends Minion {
 
@@ -18,7 +23,7 @@ public class SebbbenMinion extends Minion {
 
     @Override
     public String getMinionName() {
-        return "Sebbben Minion";
+        return "Sebbben Minion " + RomanNumeralGen.toRoman(minionLevel+1);
     }
 
     @Override
@@ -68,11 +73,6 @@ public class SebbbenMinion extends Minion {
     }
 
     @Override
-    public ItemStack getMinionHead() {
-        return MinionHeads.getMinionHead("Sebbben");
-    }
-
-    @Override
     public HashMap<Integer, Integer> getInventorySizes() {
         HashMap<Integer, Integer> inventorySlots = new HashMap<>();
         inventorySlots.put(0,1);
@@ -87,6 +87,18 @@ public class SebbbenMinion extends Minion {
         inventorySlots.put(9,15);
         inventorySlots.put(10,15);
         return inventorySlots;
+    }
+
+    @Override
+    public List<String> getHeadLore() {
+        return Arrays.asList(
+                "Sebbben minion head",
+                "Used to place Sebbben minion");
+    }
+
+    @Override
+    public Player getHeadOwner() {
+        return Bukkit.getPlayer("Sebbben");
     }
 
 

@@ -26,17 +26,8 @@ public class MinionHeads {
         makeMinionHeads();
     }
 
-    private static ItemStack newHead(OfflinePlayer player,String title, List<String> lore) {
-        ItemStack head = new ItemStack(Material.PLAYER_HEAD,1);
-        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
-        headMeta.setOwningPlayer(player);
-        headMeta.setLore(lore);
-        headMeta.setDisplayName(title);
-        head.setItemMeta(headMeta);
-        return head;
-    }
+
 
     private static void makeMinionHeads() {
-        minionHeads.put("Sebbben", newHead((OfflinePlayer) Bukkit.getPlayer("Sebbben"), "SebbbenMinion",Arrays.asList("Sebbben minion's head", "Used to place the Sebbben minion")));
     }
 }

@@ -12,13 +12,15 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.logging.Level;
 
 public abstract class Minion implements InventoryHolder {
-    // Equipment items
+    // Equipment items init
     private ItemStack head;
     private ItemStack chestPlate;
     private ItemStack pants;
@@ -26,7 +28,7 @@ public abstract class Minion implements InventoryHolder {
     private ItemStack tool;
     private ArmorStand armorStand;
 
-    // Variables overwritten in subclass
+    // Variables overwritten in subclass with functions
     private final Location location;
     private final Material minionBlockType;
     private final Material minionMaterialType;
@@ -44,9 +46,10 @@ public abstract class Minion implements InventoryHolder {
     private static ItemStack upgrade;
     private static ItemStack collectAll;
     private static ItemStack idealLayout;
-    private int minionLevel;
     private HashMap<Integer, Long> miningPeriod;
     private HashMap<Integer, Integer> inventorySizes;
+
+    protected int minionLevel;
 
     public static void init() {
         pickMeUp = new ItemStack(Material.BEDROCK);
@@ -83,13 +86,15 @@ public abstract class Minion implements InventoryHolder {
         inventorySizes = getInventorySizes();
         location = l;
         minionLevel = level;
+
         makeInventories();
         createOutFit();
         placeMinion();
         doMining();
+
     }
 
-
+    // ----------   ABSTRACT STUFF  ------------
 
     public abstract String getMinionName();
     public abstract Material getToolType();
@@ -98,8 +103,12 @@ public abstract class Minion implements InventoryHolder {
     public abstract Material getMaterialType();
     public abstract ItemStack getIdealLayoutItem();
     public abstract HashMap<Integer, Long> getMiningPeriod();
-    public abstract ItemStack getMinionHead();
     public abstract HashMap<Integer, Integer> getInventorySizes();
+    public abstract List<String> getHeadLore();
+    public abstract Player getHeadOwner();
+    public abstract void makeMinionHeads();
+
+    // ----------  GENERAL STUFF  -----------
 
     public UUID getUUID() {
         return armorStand.getUniqueId();
@@ -177,6 +186,15 @@ public abstract class Minion implements InventoryHolder {
         armorStand.remove();
     }
 
+    private ItemStack getMinionHead() {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD,1);
+        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+        headMeta.setOwningPlayer((OfflinePlayer) getHeadOwner());
+        headMeta.setLore(getHeadLore());
+        headMeta.setDisplayName(getMinionName());
+        head.setItemMeta(headMeta);
+        return head;
+    }
 
     protected void createOutFit() {
 
@@ -218,6 +236,9 @@ public abstract class Minion implements InventoryHolder {
         armorStand.getEquipment().setBoots(boots);
         armorStand.getEquipment().setItemInMainHand(tool);
     }
+
+
+    // ----------   INVENTORY STUFF --------------
 
     private void makeInventories() {
         info = new ArrayList<>(3);
@@ -269,8 +290,9 @@ public abstract class Minion implements InventoryHolder {
     }
 
     @Override
+    @Nonnull
     public Inventory getInventory() {
-        Inventory inv = Bukkit.createInventory(this, 54,getMinionName() + " " + RomanNumeralGen.toRoman(minionLevel+1));
+        Inventory inv = Bukkit.createInventory(this, 54,getMinionName());
 
         fillInv(inv);
 
